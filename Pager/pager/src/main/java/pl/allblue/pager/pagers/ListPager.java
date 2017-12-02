@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +21,10 @@ public class ListPager implements PagesManager
 
 
     private PagesData pages = null;
-    private String page_Active = null;
     private List<String> pages_Stack = new ArrayList<>();
+
+    private String page_Active = null;
+
 
     public ListPager(PagesData pager)
     {
@@ -103,6 +106,12 @@ public class ListPager implements PagesManager
     public void onDestroyView()
     {
         this.pages.onDestroyView();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        return false;
     }
 
     @Override

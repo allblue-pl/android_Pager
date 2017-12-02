@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.view.MenuItem;
 
 import java.util.Stack;
 
@@ -90,6 +91,12 @@ public class StackPager implements PagesManager
     public void onDestroyView()
     {
         this.pages.onDestroyView();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        return false;
     }
 
     public void onSaveInstanceState(Bundle out_state)

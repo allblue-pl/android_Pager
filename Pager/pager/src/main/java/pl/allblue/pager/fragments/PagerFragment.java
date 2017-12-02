@@ -29,8 +29,10 @@ public class PagerFragment extends Fragment implements
         super.onCreate(saved_instance_state);
 
         this.pagesManager = this.onCreatePager();
-        if (this.pagesManager == null)
-            throw new AssertionError("`PagesManager` not set. Override `onCreatePager`.");
+        if (this.pagesManager == null) {
+            throw new AssertionError("`PagesManager` not set. Override `onCreatePager` in `" +
+                    this.getClass().getName() + "`.");
+        }
     }
 
     @Override

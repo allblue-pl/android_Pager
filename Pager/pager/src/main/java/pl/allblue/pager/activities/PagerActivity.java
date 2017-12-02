@@ -6,16 +6,13 @@ import android.support.v7.app.AppCompatActivity;
 
 import pl.allblue.pager.PagesManager;
 
-public class PagerActivity extends AppCompatActivity
+abstract public class PagerActivity extends AppCompatActivity
 {
 
     private PagesManager pagesManager = null;
 
-    public PagesManager onCreatePager()
-    {
-        return null;
-    }
 
+    abstract public PagesManager onCreatePager();
 
     /* AppCompatActivity Overrides */
     @Override
@@ -25,7 +22,8 @@ public class PagerActivity extends AppCompatActivity
 
         this.pagesManager = this.onCreatePager();
         if (this.pagesManager == null)
-            throw new AssertionError("`PagesManager` not set. Override `onCreatePager`.");
+            throw new AssertionError("`PagesManager` returned by `onCreatePager`" +
+                    " cannot be null.");
 
         this.pagesManager.onCreateView(saved_instance_state);
     }
@@ -45,7 +43,6 @@ public class PagerActivity extends AppCompatActivity
 
         this.pagesManager.onSaveInstanceState(out_state);
     }
-
     /* / AppCompatActivity Overrides */
 
 }
