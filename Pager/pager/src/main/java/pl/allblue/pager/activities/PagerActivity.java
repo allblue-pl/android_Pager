@@ -4,44 +4,44 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import pl.allblue.pager.PagesManager;
+import pl.allblue.pager.Pager;
 
 abstract public class PagerActivity extends AppCompatActivity
 {
 
-    private PagesManager pagesManager = null;
+    private Pager pager = null;
 
 
-    abstract public PagesManager onCreatePager();
+    abstract public Pager onCreatePager();
 
     /* AppCompatActivity Overrides */
     @Override
-    public void onCreate(@Nullable Bundle saved_instance_state)
+    public void onCreate(@Nullable Bundle savedInstanceState)
     {
-        super.onCreate(saved_instance_state);
+        super.onCreate(savedInstanceState);
 
-        this.pagesManager = this.onCreatePager();
-        if (this.pagesManager == null)
-            throw new AssertionError("`PagesManager` returned by `onCreatePager`" +
+        this.pager = this.onCreatePager();
+        if (this.pager == null)
+            throw new AssertionError("`Pager` returned by `onCreatePager`" +
                     " cannot be null.");
 
-        this.pagesManager.onCreateView(saved_instance_state);
+        this.pager.onCreateView(savedInstanceState);
     }
 
     @Override
     public void onDestroy()
     {
-        this.pagesManager.onDestroyView();
+        this.pager.onDestroyView();
 
         super.onDestroy();
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle out_state)
+    protected void onSaveInstanceState(Bundle outState)
     {
-        super.onSaveInstanceState(out_state);
+        super.onSaveInstanceState(outState);
 
-        this.pagesManager.onSaveInstanceState(out_state);
+        this.pager.onSaveInstanceState(outState);
     }
     /* / AppCompatActivity Overrides */
 

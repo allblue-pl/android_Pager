@@ -5,64 +5,66 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.allblue.pager.PagesData;
-import pl.allblue.pager.PagesManager;
+import pl.allblue.pager.PageInfo;
+import pl.allblue.pager.Pager;
+import pl.allblue.pager.Pages;
 
-public class ListPager implements PagesManager
+public class ListPager extends Pager
 {
 
     static public final String StateExts_ActivePage = "ActivePage";
 
 
-    private PagesData pages = null;
     private List<String> pages_Stack = new ArrayList<>();
-
     private String page_Active = null;
 
 
-    public ListPager(PagesData pager)
+    public ListPager(String pager_tag, AppCompatActivity activity, int page_view_id)
     {
-        final ListPager self = this;
-
-        this.pages = pager;
+        super(pager_tag, activity, page_view_id);
     }
 
-    public void set(String page_name, boolean add_to_stack)
+    public ListPager(String pager_tag, Fragment fragment, int page_view_id)
     {
-        PagesData.Page page = this.pages.getPage(page_name);
-        FragmentManager fm = this.pages.getFragmentManager();
+        super(pager_tag, fragment, page_view_id);
+    }
 
-        Fragment page_fragment = this.pages.getFragmentManager().findFragmentByTag(
-                page.getTag());
-        boolean is_new_fragment = false;
-        if (page_fragment == null) {
-            page_fragment = page.getInstance().onCreate();
-            is_new_fragment = true;
-            Log.d("PagesData", "New " + page.getName());
+    public void set(String pageName, boolean addToStack)
+    {
+        PageInfo pageInfo = this.getPages().get(pageName);
+        FragmentManager fm = this.getFragmentManager();
+
+        Fragment pageFragment = this.getFragmentManager().findFragmentByTag(
+                pageInfo.getTag());
+        boolean isNewFragment = false;
+        if (pageFragment == null) {
+            pageFragment = pageInfo.getPage().onCreate();
+            isNewFragment = true;
+            Log.d("Pages", "New " + pageInfo.getName());
         } else {
-            Log.d("PagesData", "Reusing " + page.getName());
+            Log.d("Pages", "Reusing " + pageInfo.getName());
         }
 
-        FragmentTransaction ft = this.pages.getFragmentManager().beginTransaction();
-        ft.replace(this.pages.getViewId(), page_fragment, page.getTag());
-        if (is_new_fragment)
-            ft.addToBackStack(page.getTag());
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
+        ft.replace(this.getViewId(), pageFragment, pageInfo.getTag());
+        if (isNewFragment)
+            ft.addToBackStack(pageInfo.getTag());
         ft.commit();
 
-        if (add_to_stack) {
-            this.pages_Stack.remove(page_name);
-            this.pages_Stack.add(page_name);
+        if (addToStack) {
+            this.pages_Stack.remove(pageName);
+            this.pages_Stack.add(pageName);
         }
 
-        this.page_Active = page_name;
+        this.page_Active = pageName;
 
-        this.pages.setActivePage(page_name, page_fragment);
+        this.setActivePage(pageName, pageFragment);
     }
 
     public void set(String page_name)
@@ -71,11 +73,11 @@ public class ListPager implements PagesManager
     }
 
 
-    /* PagesManager Overrides */
+    /* Pager Overrides */
     @Override
     public boolean onBackPressed()
     {
-        if (this.pages.onBackPressed())
+        if (super.onBackPressed())
             return true;
 
         if (this.pages_Stack.size() <= 1)
@@ -94,32 +96,20 @@ public class ListPager implements PagesManager
     {
         if (saved_instance_state != null) {
             this.page_Active = saved_instance_state.getString(
-                    this.pages.getStateKey(ListPager.StateExts_ActivePage));
+                    this.getStateKey(ListPager.StateExts_ActivePage));
         } else if (this.page_Active == null)
-            this.page_Active = this.pages.getDefaultPage().getName();
+            this.page_Active = this.getPages().getDefault().getName();
 
         Log.d("ListPager", "Creating view: " + this.page_Active);
         this.set(this.page_Active);
     }
 
     @Override
-    public void onDestroyView()
+    public void onSaveInstanceState(Bundle outState)
     {
-        this.pages.onDestroyView();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        return false;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle out_state)
-    {
-        out_state.putString(this.pages.getStateKey(ListPager.StateExts_ActivePage),
+        outState.putString(this.getStateKey(ListPager.StateExts_ActivePage),
                 this.page_Active);
     }
-    /* / PagesManager Overrides */
+    /* / Pager Overrides */
 
 }

@@ -4,33 +4,33 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
-import pl.allblue.pager.PagesManager;
+import pl.allblue.pager.Pager;
 
 public class PagerFragment extends Fragment implements
-        PagesManager.OnBackPressedListener
+        Pager.OnBackPressedListener
 {
 
-    private PagesManager pagesManager = null;
+    private Pager pager = null;
 
-    public PagesManager onCreatePager()
+    public Pager onCreatePager()
     {
         return null;
     }
 
-    public void onCreatePagerView(@Nullable Bundle saved_instance_state)
+    public void onCreatePagerView(@Nullable Bundle savedInstanceState)
     {
-        this.pagesManager.onCreateView(saved_instance_state);
+        this.pager.onCreateView(savedInstanceState);
     }
 
     /* Fragment Overrides */
     @Override
-    public void onCreate(@Nullable Bundle saved_instance_state)
+    public void onCreate(@Nullable Bundle savedInstanceState)
     {
-        super.onCreate(saved_instance_state);
+        super.onCreate(savedInstanceState);
 
-        this.pagesManager = this.onCreatePager();
-        if (this.pagesManager == null) {
-            throw new AssertionError("`PagesManager` not set. Override `onCreatePager` in `" +
+        this.pager = this.onCreatePager();
+        if (this.pager == null) {
+            throw new AssertionError("`Pager` not set. Override `onCreatePager` in `" +
                     this.getClass().getName() + "`.");
         }
     }
@@ -38,31 +38,31 @@ public class PagerFragment extends Fragment implements
     @Override
     public void onDestroyView()
     {
-        this.pagesManager.onDestroyView();
+        this.pager.onDestroyView();
 
         super.onDestroyView();
     }
 
     @Override
-    public void onSaveInstanceState(Bundle out_state)
+    public void onSaveInstanceState(Bundle outState)
     {
-        super.onSaveInstanceState(out_state);
+        super.onSaveInstanceState(outState);
 
-        this.pagesManager.onSaveInstanceState(out_state);
+        this.pager.onSaveInstanceState(outState);
     }
 
     /* / Fragment Overrides */
 
 
-    /* PagesManager.OnBackPressedListener */
+    /* Pager.OnBackPressedListener */
     @Override
     public boolean onBackPressed()
     {
-        if (this.pagesManager.onBackPressed())
+        if (this.pager.onBackPressed())
             return true;
 
         return false;
     }
-    /* / PagesManager.OnBackPressedListener */
+    /* / Pager.OnBackPressedListener */
 
 }

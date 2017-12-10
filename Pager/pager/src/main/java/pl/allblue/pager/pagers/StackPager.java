@@ -4,59 +4,64 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.view.MenuItem;
+import android.support.v7.app.AppCompatActivity;
 
 import java.util.Stack;
 
-import pl.allblue.pager.PagesData;
-import pl.allblue.pager.PagesManager;
+import pl.allblue.pager.PageInfo;
+import pl.allblue.pager.Pages;
+import pl.allblue.pager.Pager;
 
-public class StackPager implements PagesManager
+public class StackPager extends Pager
 {
 
     static public final String StateExts_PagesStack = "PagesStack";
 
 
-    private PagesData pages = null;
+    private Pages pages = null;
     private Stack<String> pages_Stack = new Stack<>();
 
 
-    public StackPager(PagesData pages)
+    public StackPager(String pager_tag, AppCompatActivity activity, int page_view_id)
     {
-        this.pages = pages;
+        super(pager_tag, activity, page_view_id);
+    }
+    public StackPager(String pager_tag, Fragment fragment, int page_view_id)
+    {
+        super(pager_tag, fragment, page_view_id);
     }
 
     public void push(String page_name)
     {
-        PagesData.Page page = this.pages.getPage(page_name);
+        PageInfo pageInfo = this.pages.get(page_name);
 
-        Fragment page_fragment = page.getInstance().onCreate();
+        Fragment page_fragment = pageInfo.getPage().onCreate();
 
-        this.pages.getFragmentManager().beginTransaction()
-            .replace(this.pages.getViewId(), page_fragment)
-            .addToBackStack(page.getTag())
+        this.getFragmentManager().beginTransaction()
+            .replace(this.getViewId(), page_fragment)
+            .addToBackStack(pageInfo.getTag())
             .commit();
 
         this.pages_Stack.push(page_name);
 
-        this.pages.setFragment(page_name, page_fragment);
+        this.setFragment(page_name, page_fragment);
     }
 
     public void pop()
     {
         String page_name = this.pages_Stack.pop();
-        FragmentManager fm = this.pages.getFragmentManager();
+        FragmentManager fm = this.getFragmentManager();
 
         int back_stack_count = fm.getBackStackEntryCount();
         if (back_stack_count == 0)
             throw new AssertionError("Stack empty.");
 
-        this.pages.getFragmentManager().popBackStack();
+        this.getFragmentManager().popBackStack();
     }
 
-    private Fragment getFragment(PagesData.Page page)
+    private Fragment getFragment(PageInfo page)
     {
-        return page.getInstance().onCreate();
+        return page.getPage().onCreate();
     }
 
 
@@ -64,7 +69,7 @@ public class StackPager implements PagesManager
     @Override
     public boolean onBackPressed()
     {
-        if (this.pages.onBackPressed())
+        if (super.onBackPressed())
             return true;
 
         if (this.pages_Stack.size() <= 1)
@@ -79,24 +84,12 @@ public class StackPager implements PagesManager
     {
         if (saved_instance_state != null) {
             String[] pages_stack = saved_instance_state.getStringArray(
-                    this.pages.getStateKey(StackPager.StateExts_PagesStack));
+                    this.getStateKey(StackPager.StateExts_PagesStack));
 
             for (int i = 0; i < pages_stack.length; i++)
                 this.push(pages_stack[i]);
         } else if (this.pages_Stack.size() == 0)
-            this.push(this.pages.getDefaultPage().getName());
-    }
-
-    @Override
-    public void onDestroyView()
-    {
-        this.pages.onDestroyView();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        return false;
+            this.push(this.pages.getDefault().getName());
     }
 
     public void onSaveInstanceState(Bundle out_state)
@@ -104,7 +97,7 @@ public class StackPager implements PagesManager
         String[] pages_stack_array = new String[this.pages_Stack.size()];
         this.pages_Stack.toArray(pages_stack_array);
 
-        out_state.putStringArray(this.pages.getStateKey(
+        out_state.putStringArray(this.getStateKey(
                 StackPager.StateExts_PagesStack), pages_stack_array);
     }
     /* / FragmentManager Overrides */
