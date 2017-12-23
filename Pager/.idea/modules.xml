@@ -3,8 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Pager.iml" filepath="$PROJECT_DIR$/Pager.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Pager.iml" filepath="$PROJECT_DIR$/Pager.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\SfTd\AllBlue\Projects\BoulderStats\boulder-stats\Pager\Pager\Pager.iml" filepath="C:\SfTd\AllBlue\Projects\BoulderStats\boulder-stats\Pager\Pager\Pager.iml" />
+      <module fileurl="file://C:\SfTd\AllBlue\Projects\BoulderStats\boulder-stats\Pager\Pager\app\app.iml" filepath="C:\SfTd\AllBlue\Projects\BoulderStats\boulder-stats\Pager\Pager\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/pager/pager.iml" filepath="$PROJECT_DIR$/pager/pager.iml" />
     </modules>
   </component>
