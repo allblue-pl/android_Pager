@@ -13,7 +13,6 @@ import java.util.List;
 
 import pl.allblue.pager.PageInfo;
 import pl.allblue.pager.Pager;
-import pl.allblue.pager.Pages;
 
 public class ListPager extends Pager
 {
@@ -25,26 +24,25 @@ public class ListPager extends Pager
     private String page_Active = null;
 
 
-    public ListPager(String pager_tag, AppCompatActivity activity, int page_view_id)
+    public ListPager(String pagerTag, AppCompatActivity activity, int pageViewId)
     {
-        super(pager_tag, activity, page_view_id);
+        super(pagerTag, activity, pageViewId);
     }
 
-    public ListPager(String pager_tag, Fragment fragment, int page_view_id)
+    public ListPager(String pagerTag, Fragment fragment, int pageViewId)
     {
-        super(pager_tag, fragment, page_view_id);
+        super(pagerTag, fragment, pageViewId);
     }
 
     public void set(String pageName, boolean addToStack)
     {
         PageInfo pageInfo = this.getPages().get(pageName);
-        FragmentManager fm = this.getFragmentManager();
 
         Fragment pageFragment = this.getFragmentManager().findFragmentByTag(
                 pageInfo.getTag());
         boolean isNewFragment = false;
         if (pageFragment == null) {
-            pageFragment = pageInfo.getPage().onCreate();
+            pageFragment = pageInfo.getPage().onPageCreate();
             isNewFragment = true;
             Log.d("Pages", "New " + pageInfo.getName());
         } else {
@@ -75,9 +73,9 @@ public class ListPager extends Pager
 
     /* Pager Overrides */
     @Override
-    public boolean onBackPressed()
+    public boolean onPagerBackPressed()
     {
-        if (super.onBackPressed())
+        if (super.onPagerBackPressed())
             return true;
 
         if (this.pages_Stack.size() <= 1)
@@ -92,10 +90,10 @@ public class ListPager extends Pager
     }
 
     @Override
-    public void onCreateView(@Nullable Bundle saved_instance_state)
+    public void onCreateView(@Nullable Bundle savedInstanceState)
     {
-        if (saved_instance_state != null) {
-            this.page_Active = saved_instance_state.getString(
+        if (savedInstanceState != null) {
+            this.page_Active = savedInstanceState.getString(
                     this.getStateKey(ListPager.StateExts_ActivePage));
         } else if (this.page_Active == null)
             this.page_Active = this.getPages().getDefault().getName();

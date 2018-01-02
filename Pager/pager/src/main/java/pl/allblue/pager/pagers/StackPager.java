@@ -5,11 +5,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import java.util.Stack;
 
 import pl.allblue.pager.PageInfo;
-import pl.allblue.pager.Pages;
 import pl.allblue.pager.Pager;
 
 public class StackPager extends Pager
@@ -18,7 +18,6 @@ public class StackPager extends Pager
     static public final String StateExts_PagesStack = "PagesStack";
 
 
-    private Pages pages = null;
     private Stack<String> pages_Stack = new Stack<>();
 
 
@@ -31,45 +30,63 @@ public class StackPager extends Pager
         super(pager_tag, fragment, page_view_id);
     }
 
-    public void push(String page_name)
+    public void push(String pageName)
     {
-        PageInfo pageInfo = this.pages.get(page_name);
-
-        Fragment page_fragment = pageInfo.getPage().onCreate();
+        PageInfo pageInfo = this.getPages().get(pageName);
+        Fragment pageFragment = pageInfo.getPage().onPageCreate();
+        String pageTag = pageInfo.getTag() + "." + this.pages_Stack.size();
 
         this.getFragmentManager().beginTransaction()
-            .replace(this.getViewId(), page_fragment)
-            .addToBackStack(pageInfo.getTag())
+            .replace(this.getViewId(), pageFragment, pageTag)
+            .addToBackStack(pageTag)
             .commit();
 
-        this.pages_Stack.push(page_name);
+        this.pages_Stack.push(pageName);
 
-        this.setFragment(page_name, page_fragment);
+        this.setActivePage(pageName, pageFragment);
     }
 
     public void pop()
     {
-        String page_name = this.pages_Stack.pop();
+        if (this.pages_Stack.size() < 2)
+            throw new AssertionError("Stack empty.");
+
+        this.pages_Stack.pop();
+
+        int oldPage_Index = this.pages_Stack.size();
+        String oldPage_Name = this.getActivePageName();
+        Fragment oldPage_Fragment = this.getActiveFragment();
+
+        int newPage_Index = this.pages_Stack.size() - 1;
+        String newPage_Name = this.pages_Stack.get(this.pages_Stack.size() - 1);
+        String newPage_Tag = this.getPages().get(newPage_Name).getTag() +
+                "." + newPage_Index;
+
+        Fragment newPage_Fragment = this.getFragmentManager()
+                .findFragmentByTag(newPage_Tag);
+
         FragmentManager fm = this.getFragmentManager();
 
         int back_stack_count = fm.getBackStackEntryCount();
         if (back_stack_count == 0)
             throw new AssertionError("Stack empty.");
 
+        this.getPages().get(oldPage_Name).getPage().onPageUnset(oldPage_Fragment);
         this.getFragmentManager().popBackStack();
+         this.getPages().get(newPage_Name).getPage().onPageSet(newPage_Fragment);
     }
 
     private Fragment getFragment(PageInfo page)
     {
-        return page.getPage().onCreate();
+        return page.getPage().onPageCreate();
     }
 
 
     /* FragmentManager Overrides */
     @Override
-    public boolean onBackPressed()
+    public boolean onPagerBackPressed()
     {
-        if (super.onBackPressed())
+        if (super.onPagerBackPressed())
             return true;
 
         if (this.pages_Stack.size() <= 1)
@@ -89,7 +106,7 @@ public class StackPager extends Pager
             for (int i = 0; i < pages_stack.length; i++)
                 this.push(pages_stack[i]);
         } else if (this.pages_Stack.size() == 0)
-            this.push(this.pages.getDefault().getName());
+            this.push(this.getPages().getDefault().getName());
     }
 
     public void onSaveInstanceState(Bundle out_state)

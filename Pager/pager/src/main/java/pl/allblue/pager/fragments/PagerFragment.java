@@ -6,16 +6,13 @@ import android.support.v4.app.Fragment;
 
 import pl.allblue.pager.Pager;
 
-public class PagerFragment extends Fragment implements
+public abstract class PagerFragment extends Fragment implements
         Pager.OnBackPressedListener
 {
 
     private Pager pager = null;
 
-    public Pager onCreatePager()
-    {
-        return null;
-    }
+    abstract public Pager onCreatePager();
 
     public void onCreatePagerView(@Nullable Bundle savedInstanceState)
     {
@@ -56,12 +53,9 @@ public class PagerFragment extends Fragment implements
 
     /* Pager.OnBackPressedListener */
     @Override
-    public boolean onBackPressed()
+    public boolean onFragmentBackPressed()
     {
-        if (this.pager.onBackPressed())
-            return true;
-
-        return false;
+        return this.pager.onPagerBackPressed();
     }
     /* / Pager.OnBackPressedListener */
 

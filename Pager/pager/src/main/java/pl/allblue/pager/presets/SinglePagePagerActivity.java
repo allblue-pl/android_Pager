@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 
 import pl.allblue.pager.Page;
 import pl.allblue.pager.Pager;
-import pl.allblue.pager.Pages;
 import pl.allblue.pager.R;
 import pl.allblue.pager.activities.PagerActivity;
 import pl.allblue.pager.pagers.ListPager;
@@ -25,7 +24,7 @@ abstract public class SinglePagePagerActivity extends PagerActivity
     @Override
     public void onBackPressed()
     {
-        if (this.pager.onBackPressed())
+        if (this.pager.onPagerBackPressed())
             return;
 
         this.finish();
@@ -51,12 +50,18 @@ abstract public class SinglePagePagerActivity extends PagerActivity
         this.pager.getPages()
             .add("Main", new Page() {
                 @Override
-                public Fragment onCreate() {
+                public Fragment onPageCreate() {
                     return self.onCreatePage();
                 }
 
                 @Override
-                public void onSet() {
+                public void onPageSet(Fragment pageFragment) {
+
+                }
+
+                @Override
+                public void onPageUnset(Fragment pageFragment)
+                {
 
                 }
             })

@@ -7,10 +7,10 @@ public class PageInfo
     private String tag = null;
     private Page page = null;
 
-    public PageInfo(String pager_tag, String name, Page page)
+    public PageInfo(String pagerTag, String name, Page page)
     {
         this.name = name;
-        this.tag = pager_tag + "." + name;
+        this.tag = pagerTag + "." + name;
         this.page = page;
     }
 

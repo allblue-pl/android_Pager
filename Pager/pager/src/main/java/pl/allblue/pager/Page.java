@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment;
 
 public interface Page
 {
-    Fragment onCreate();
-    void onSet();
+    Fragment onPageCreate();
+    void onPageSet(Fragment pageFragment);
+    void onPageUnset(Fragment pageFragment);
 }

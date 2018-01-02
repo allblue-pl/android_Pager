@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 
 public abstract class Pager
 {
@@ -44,6 +43,11 @@ public abstract class Pager
         return this.activePage_Fragment;
     }
 
+    public String getActivePageName()
+    {
+        return this.activePage_Name;
+    }
+
     public Pages getPages()
     {
         return this.pages;
@@ -54,12 +58,12 @@ public abstract class Pager
         return this.view_Id;
     }
 
-    public boolean onBackPressed()
+    public boolean onPagerBackPressed()
     {
         if (this.activePage_Fragment != null) {
             if (this.activePage_Fragment instanceof Pager.OnBackPressedListener) {
                 if (((Pager.OnBackPressedListener)this.activePage_Fragment)
-                        .onBackPressed())
+                        .onFragmentBackPressed())
                     return true;
             }
         }
@@ -89,35 +93,30 @@ public abstract class Pager
         return this.tag + ".States_" + state_ext;
     }
 
-    protected void setActivePage(String page_name, Fragment fragment)
+    protected void setActivePage(String pageName, Fragment fragment)
     {
-        PageInfo pageInfo = this.pages.get(page_name);
+        if (this.activePage_Name != null && this.activePage_Fragment != null) {
+            PageInfo oldPage = this.pages.get(this.activePage_Name);
+            oldPage.getPage().onPageUnset(this.activePage_Fragment);
+        }
 
-        this.activePage_Name = page_name;
+        PageInfo pageInfo = this.pages.get(pageName);
+
+        this.activePage_Name = pageName;
         this.activePage_Fragment = fragment;
 
-        pageInfo.getPage().onSet();
-    }
-
-    protected void setFragment(String page_name, Fragment fragment)
-    {
-        PageInfo pageInfo = this.pages.get(page_name);
-
-        this.activePage_Name = page_name;
-        this.activePage_Fragment = fragment;
-
-        pageInfo.getPage().onSet();
+        pageInfo.getPage().onPageSet(fragment);
     }
 
 
-//    public abstract boolean onBackPressed();
+//    public abstract boolean onPagerBackPressed();
     public abstract void onCreateView(@Nullable Bundle saved_instance_state);
     public abstract void onSaveInstanceState(Bundle out_state);
 
 
     public interface OnBackPressedListener
     {
-        boolean onBackPressed();
+        boolean onFragmentBackPressed();
     }
 
 }
