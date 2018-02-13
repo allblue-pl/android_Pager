@@ -16,6 +16,8 @@ abstract public class DefaultPagerFragment extends PagerFragment
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
+        this.getPager().onCreateView(savedInstanceState);
+
         View view = inflater.inflate(R.layout.fragment_defaultpager, container,
                 false);
 

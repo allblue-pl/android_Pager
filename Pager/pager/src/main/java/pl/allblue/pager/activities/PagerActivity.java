@@ -3,6 +3,8 @@ package pl.allblue.pager.activities;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.MenuItem;
 
 import pl.allblue.pager.Pager;
 
@@ -26,14 +28,6 @@ abstract public class PagerActivity extends AppCompatActivity
                     " cannot be null.");
 
         this.pager.onCreateView(savedInstanceState);
-    }
-
-    @Override
-    public void onDestroy()
-    {
-        this.pager.onDestroyView();
-
-        super.onDestroy();
     }
 
     @Override

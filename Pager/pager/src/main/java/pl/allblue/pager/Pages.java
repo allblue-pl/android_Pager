@@ -38,22 +38,25 @@ public class Pages
 
     public PageInfo getDefault()
     {
-        if (this.defaultPage_Name == null) {
-            if (this.pages.size() == 0)
-                throw new AssertionError("No pages added.");
+        if (this.defaultPage_Name == null)
+            return null;
 
-            return this.pages.get(this.firstPage_Name);
-        }
+//        if (this.defaultPage_Name == null) {
+//            if (this.pages.size() == 0)
+//                throw new AssertionError("No pages added.");
+//
+//            return this.pages.get(this.firstPage_Name);
+//        }
 
         return this.pages.get(this.defaultPage_Name);
     }
 
-    public PageInfo get(String page_name)
+    public PageInfo get(String pageName)
     {
-        if (!this.pages.containsKey(page_name))
-            throw new AssertionError("PageInfo `" + page_name + "` does not exist.");
+        if (!this.pages.containsKey(pageName))
+            throw new AssertionError("PageInfo `" + pageName + "` does not exist.");
 
-        return this.pages.get(page_name);
+        return this.pages.get(pageName);
     }
 
     public void setDefault(String page_name)

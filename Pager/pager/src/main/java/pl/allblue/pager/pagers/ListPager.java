@@ -34,20 +34,24 @@ public class ListPager extends Pager
         super(pagerTag, fragment, pageViewId);
     }
 
-    public void set(String pageName, boolean addToStack)
+    public void set(String pageName, Bundle args, boolean createNew, boolean addToStack)
     {
         PageInfo pageInfo = this.getPages().get(pageName);
 
-        Fragment pageFragment = this.getFragmentManager().findFragmentByTag(
-                pageInfo.getTag());
+        Fragment pageFragment = null;
         boolean isNewFragment = false;
+
+        if (!createNew) {
+            pageFragment = this.getFragmentManager().findFragmentByTag(
+                    pageInfo.getTag());
+        }
+
         if (pageFragment == null) {
             pageFragment = pageInfo.getPage().onPageCreate();
             isNewFragment = true;
-            Log.d("Pages", "New " + pageInfo.getName());
-        } else {
-            Log.d("Pages", "Reusing " + pageInfo.getName());
         }
+
+        pageFragment.setArguments(args);
 
         FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         ft.replace(this.getViewId(), pageFragment, pageInfo.getTag());
@@ -62,12 +66,24 @@ public class ListPager extends Pager
 
         this.page_Active = pageName;
 
+        Log.d("ListPager", pageName);
+
         this.setActivePage(pageName, pageFragment);
     }
 
-    public void set(String page_name)
+    public void set(String pageName, Bundle bundle, boolean createNew)
     {
-        this.set(page_name, true);
+        this.set(pageName, bundle, createNew, false);
+    }
+
+    public void set(String pageName, Bundle bundle)
+    {
+        this.set(pageName, bundle, false);
+    }
+
+    public void set(String pageName)
+    {
+        this.set(pageName, null);
     }
 
 
@@ -84,7 +100,7 @@ public class ListPager extends Pager
         String page_name = this.pages_Stack.get(this.pages_Stack.size() - 2);
         this.pages_Stack.remove(this.pages_Stack.size() - 1);
 
-        this.set(page_name, false);
+        this.set(page_name, null, false);
 
         return true;
     }
@@ -95,11 +111,15 @@ public class ListPager extends Pager
         if (savedInstanceState != null) {
             this.page_Active = savedInstanceState.getString(
                     this.getStateKey(ListPager.StateExts_ActivePage));
-        } else if (this.page_Active == null)
-            this.page_Active = this.getPages().getDefault().getName();
+        } else if (this.page_Active == null) {
+            if (this.getPages().getDefault() == null)
+                this.page_Active = null;
+            else
+                this.page_Active = this.getPages().getDefault().getName();
+        }
 
-        Log.d("ListPager", "Creating view: " + this.page_Active);
-        this.set(this.page_Active);
+        if (this.page_Active != null)
+            this.set(this.page_Active);
     }
 
     @Override

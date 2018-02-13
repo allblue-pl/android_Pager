@@ -21,19 +21,21 @@ public class StackPager extends Pager
     private Stack<String> pages_Stack = new Stack<>();
 
 
-    public StackPager(String pager_tag, AppCompatActivity activity, int page_view_id)
+    public StackPager(String pager_tag, AppCompatActivity activity, int pageViewId)
     {
-        super(pager_tag, activity, page_view_id);
-    }
-    public StackPager(String pager_tag, Fragment fragment, int page_view_id)
-    {
-        super(pager_tag, fragment, page_view_id);
+        super(pager_tag, activity, pageViewId);
     }
 
-    public void push(String pageName)
+    public StackPager(String pager_tag, Fragment fragment, int pageViewId)
+    {
+        super(pager_tag, fragment, pageViewId);
+    }
+
+    public void push(String pageName, Bundle bundle, boolean createNew)
     {
         PageInfo pageInfo = this.getPages().get(pageName);
         Fragment pageFragment = pageInfo.getPage().onPageCreate();
+        pageFragment.setArguments(bundle);
         String pageTag = pageInfo.getTag() + "." + this.pages_Stack.size();
 
         this.getFragmentManager().beginTransaction()
@@ -42,8 +44,19 @@ public class StackPager extends Pager
             .commit();
 
         this.pages_Stack.push(pageName);
+        Log.d("StackPager", "Push " + pageName);
 
         this.setActivePage(pageName, pageFragment);
+    }
+
+    public void push (String pageName, Bundle bundle)
+    {
+        this.push(pageName, bundle, true);
+    }
+
+    public void push(String pageName)
+    {
+        this.push(pageName, null);
     }
 
     public void pop()
@@ -73,7 +86,7 @@ public class StackPager extends Pager
 
         this.getPages().get(oldPage_Name).getPage().onPageUnset(oldPage_Fragment);
         this.getFragmentManager().popBackStack();
-         this.getPages().get(newPage_Name).getPage().onPageSet(newPage_Fragment);
+        this.getPages().get(newPage_Name).getPage().onPageSet(newPage_Fragment);
     }
 
     private Fragment getFragment(PageInfo page)
@@ -97,24 +110,31 @@ public class StackPager extends Pager
         return true;
     }
 
-    public void onCreateView(@Nullable Bundle saved_instance_state)
+    public void onCreateView(@Nullable Bundle savedInstanceState)
     {
-        if (saved_instance_state != null) {
-            String[] pages_stack = saved_instance_state.getStringArray(
+        Log.d("StackPager", "Test 1 " + this.getActivePageName() + " : " +
+                this.pages_Stack.size());
+
+        if (savedInstanceState != null) {
+            Log.d("StackPager", "Test 2");
+
+            String[] pagesStack = savedInstanceState.getStringArray(
                     this.getStateKey(StackPager.StateExts_PagesStack));
 
-            for (int i = 0; i < pages_stack.length; i++)
-                this.push(pages_stack[i]);
+            for (int i = 0; i < pagesStack.length; i++) {
+                this.push(pagesStack[i]);
+                Log.d("StackPager", "Test 3 " + pagesStack[i]);
+            }
         } else if (this.pages_Stack.size() == 0)
             this.push(this.getPages().getDefault().getName());
     }
 
-    public void onSaveInstanceState(Bundle out_state)
+    public void onSaveInstanceState(Bundle outState)
     {
         String[] pages_stack_array = new String[this.pages_Stack.size()];
         this.pages_Stack.toArray(pages_stack_array);
 
-        out_state.putStringArray(this.getStateKey(
+        outState.putStringArray(this.getStateKey(
                 StackPager.StateExts_PagesStack), pages_stack_array);
     }
     /* / FragmentManager Overrides */

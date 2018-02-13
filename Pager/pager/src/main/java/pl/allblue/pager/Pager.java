@@ -20,11 +20,11 @@ public abstract class Pager
     private Fragment activePage_Fragment = null;
 
 
-    public Pager(String pager_tag, AppCompatActivity activity, int page_view_id)
+    public Pager(String pagerTag, AppCompatActivity activity, int pageViewId)
     {
-        this.tag = pager_tag;
+        this.tag = pagerTag;
         this.activity = activity;
-        this.view_Id = page_view_id;
+        this.view_Id = pageViewId;
 
         this.pages = new Pages(this.tag);
     }
@@ -71,12 +71,6 @@ public abstract class Pager
         return false;
     }
 
-    public void onDestroyView()
-    {
-        this.activePage_Name = null;
-        this.activePage_Fragment = null;
-    }
-
 
     protected FragmentManager getFragmentManager()
     {
@@ -110,8 +104,8 @@ public abstract class Pager
 
 
 //    public abstract boolean onPagerBackPressed();
-    public abstract void onCreateView(@Nullable Bundle saved_instance_state);
-    public abstract void onSaveInstanceState(Bundle out_state);
+    public abstract void onCreateView(@Nullable Bundle savedInstanceState);
+    public abstract void onSaveInstanceState(Bundle outState);
 
 
     public interface OnBackPressedListener
