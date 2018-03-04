@@ -41,7 +41,7 @@ abstract public class SinglePagePagerActivity extends PagerActivity
 
     /* PagerActivity Overrides */
     @Override
-    public Pager onCreatePager()
+    public Pager onCreatePager(Bundle savedInstanceState)
     { final SinglePagePagerActivity self = this;
 
         this.pager = new ListPager(this.getPageViewId(), this,

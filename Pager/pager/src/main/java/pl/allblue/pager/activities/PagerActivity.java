@@ -14,7 +14,7 @@ abstract public class PagerActivity extends AppCompatActivity
     private Pager pager = null;
 
 
-    abstract public Pager onCreatePager();
+    abstract public Pager onCreatePager(@Nullable Bundle savedInstanceState);
 
     /* AppCompatActivity Overrides */
     @Override
@@ -22,12 +22,12 @@ abstract public class PagerActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
 
-        this.pager = this.onCreatePager();
+        this.pager = this.onCreatePager(savedInstanceState);
         if (this.pager == null)
             throw new AssertionError("`Pager` returned by `onCreatePager`" +
                     " cannot be null.");
 
-        this.pager.onCreateView(savedInstanceState);
+
     }
 
     @Override

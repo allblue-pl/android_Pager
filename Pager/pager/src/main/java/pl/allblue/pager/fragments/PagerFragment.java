@@ -28,20 +28,23 @@ public abstract class PagerFragment extends Fragment implements
 //    }
 
 
-    abstract public Pager onCreatePager();
+    abstract public Pager onCreatePager(@Nullable Bundle savedInstanceState);
 
 
     /* Fragment Overrides */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-
-        this.pager = this.onCreatePager();
+        this.pager = this.onCreatePager(savedInstanceState);
         if (this.pager == null) {
             throw new AssertionError("`Pager` not set. Override `onCreatePager` in `" +
                     this.getClass().getName() + "`.");
         }
+
+        if (this.pager.getActivePageName() == null)
+            this.pager.loadInstanceState(savedInstanceState);
+
+        super.onCreate(savedInstanceState);
     }
 
     @Override

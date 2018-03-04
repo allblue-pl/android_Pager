@@ -29,13 +29,13 @@ public abstract class Pager
         this.pages = new Pages(this.tag);
     }
 
-    public Pager(String pager_tag, Fragment fragment, int page_view_id)
+    public Pager(String pagerTag, Fragment fragment, int pageViewId)
     {
-        this.tag = pager_tag;
+        this.tag = pagerTag;
         this.fragment = fragment;
-        this.view_Id = page_view_id;
+        this.view_Id = pageViewId;
 
-        this.pages = new Pages(pager_tag);
+        this.pages = new Pages(pagerTag);
     }
 
     public Fragment getActiveFragment()
@@ -104,8 +104,9 @@ public abstract class Pager
 
 
 //    public abstract boolean onPagerBackPressed();
-    public abstract void onCreateView(@Nullable Bundle savedInstanceState);
-    public abstract void onSaveInstanceState(Bundle outState);
+    abstract public void loadInstanceState(@Nullable Bundle savedInstanceState);
+    abstract public void onCreateView();
+    abstract public void onSaveInstanceState(Bundle outState);
 
 
     public interface OnBackPressedListener

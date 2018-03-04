@@ -31,7 +31,19 @@ public class StackPager extends Pager
         super(pager_tag, fragment, pageViewId);
     }
 
-    public void push(String pageName, Bundle bundle, boolean createNew)
+    @Override
+    public void loadInstanceState(@Nullable Bundle savedInstanceState)
+    {
+        if (savedInstanceState != null) {
+            String[] pagesStack = savedInstanceState.getStringArray(
+                    this.getStateKey(StackPager.StateExts_PagesStack));
+
+
+        } else if (this.pages_Stack.size() == 0)
+            this.push(this.getPages().getDefault().getName());
+    }
+
+    public void push(String pageName, Bundle bundle, boolean saveInState)
     {
         PageInfo pageInfo = this.getPages().get(pageName);
         Fragment pageFragment = pageInfo.getPage().onPageCreate();
@@ -43,13 +55,13 @@ public class StackPager extends Pager
             .addToBackStack(pageTag)
             .commit();
 
-        this.pages_Stack.push(pageName);
-        Log.d("StackPager", "Push " + pageName);
+        if (saveInState)
+            this.pages_Stack.push(pageName);
 
         this.setActivePage(pageName, pageFragment);
     }
 
-    public void push (String pageName, Bundle bundle)
+    public void push(String pageName, Bundle bundle)
     {
         this.push(pageName, bundle, true);
     }
@@ -110,23 +122,12 @@ public class StackPager extends Pager
         return true;
     }
 
-    public void onCreateView(@Nullable Bundle savedInstanceState)
+    public void onCreateView()
     {
-        Log.d("StackPager", "Test 1 " + this.getActivePageName() + " : " +
-                this.pages_Stack.size());
+        if (this.page)
 
-        if (savedInstanceState != null) {
-            Log.d("StackPager", "Test 2");
-
-            String[] pagesStack = savedInstanceState.getStringArray(
-                    this.getStateKey(StackPager.StateExts_PagesStack));
-
-            for (int i = 0; i < pagesStack.length; i++) {
-                this.push(pagesStack[i]);
-                Log.d("StackPager", "Test 3 " + pagesStack[i]);
-            }
-        } else if (this.pages_Stack.size() == 0)
-            this.push(this.getPages().getDefault().getName());
+        for (int i = 0; i < this.pages_Stack.size(); i++)
+            this.push(this.pages_Stack.get(i), null, false);
     }
 
     public void onSaveInstanceState(Bundle outState)

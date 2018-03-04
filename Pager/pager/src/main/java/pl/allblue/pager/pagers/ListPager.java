@@ -34,6 +34,19 @@ public class ListPager extends Pager
         super(pagerTag, fragment, pageViewId);
     }
 
+    public void loadInstanceState(@Nullable Bundle savedInstanceState)
+    {
+        if (savedInstanceState != null) {
+            this.page_Active = savedInstanceState.getString(
+                    this.getStateKey(ListPager.StateExts_ActivePage), null);
+            if (this.page_Active == null) {
+                throw new AssertionError(
+                        "Pagers `onSaveInstanceState` not called.");
+            }
+        } else if (this.getPages().getDefault() != null)
+            this.page_Active = this.getPages().getDefault().getName();
+    }
+
     public void set(String pageName, Bundle args, boolean createNew, boolean addToStack)
     {
         PageInfo pageInfo = this.getPages().get(pageName);
@@ -106,20 +119,26 @@ public class ListPager extends Pager
     }
 
     @Override
-    public void onCreateView(@Nullable Bundle savedInstanceState)
+    public void onCreateView()
     {
-        if (savedInstanceState != null) {
-            this.page_Active = savedInstanceState.getString(
-                    this.getStateKey(ListPager.StateExts_ActivePage));
-        } else if (this.page_Active == null) {
-            if (this.getPages().getDefault() == null)
-                this.page_Active = null;
-            else
-                this.page_Active = this.getPages().getDefault().getName();
-        }
+        if (this.getActiveFragment() != null)
+            return;
 
         if (this.page_Active != null)
             this.set(this.page_Active);
+
+//        if (savedInstanceState != null) {
+//            this.page_Active = savedInstanceState.getString(
+//                    this.getStateKey(ListPager.StateExts_ActivePage));
+//        } else if (this.page_Active == null) {
+//            if (this.getPages().getDefault() == null)
+//                this.page_Active = null;
+//            else
+//                this.page_Active = this.getPages().getDefault().getName();
+//        }
+//
+//        if (this.page_Active != null)
+//            this.set(this.page_Active);
     }
 
     @Override
