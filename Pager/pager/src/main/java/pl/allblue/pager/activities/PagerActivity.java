@@ -7,14 +7,16 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import pl.allblue.pager.Pager;
+import pl.allblue.pager.PagerInstance;
 
 abstract public class PagerActivity extends AppCompatActivity
 {
 
-    private Pager pager = null;
+    private PagerInstance pagerInstance = null;
 
 
-    abstract public Pager onCreatePager(@Nullable Bundle savedInstanceState);
+    abstract public PagerInstance onCreatePager(@Nullable Bundle savedInstanceState);
+
 
     /* AppCompatActivity Overrides */
     @Override
@@ -22,21 +24,26 @@ abstract public class PagerActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
 
-        this.pager = this.onCreatePager(savedInstanceState);
-        if (this.pager == null)
+        this.pagerInstance = this.onCreatePager(savedInstanceState);
+        if (this.pagerInstance == null)
             throw new AssertionError("`Pager` returned by `onCreatePager`" +
                     " cannot be null.");
 
+//        Log.d("[Test]", "PagerActivity - savedInstanceState: " +
+//                (savedInstanceState == null));
+//        if (savedInstanceState != null)
+//            this.pager.loadInstanceState(savedInstanceState);
 
+        // this.pager.onCreateView();
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState)
-    {
-        super.onSaveInstanceState(outState);
-
-        this.pager.onSaveInstanceState(outState);
-    }
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState)
+//    {
+//        super.onSaveInstanceState(outState);
+//
+//        this.pager.onSaveInstanceState(outState);
+//    }
     /* / AppCompatActivity Overrides */
 
 }

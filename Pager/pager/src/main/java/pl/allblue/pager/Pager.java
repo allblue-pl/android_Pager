@@ -4,17 +4,17 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
-public abstract class Pager
+public class Pager implements PagerInstance
 {
 
     private String tag = null;
     private AppCompatActivity activity = null;
     private Fragment fragment = null;
     private int view_Id = -1;
-
-    private Pages pages = null;
 
     private String activePage_Name = null;
     private Fragment activePage_Fragment = null;
@@ -25,8 +25,6 @@ public abstract class Pager
         this.tag = pagerTag;
         this.activity = activity;
         this.view_Id = pageViewId;
-
-        this.pages = new Pages(this.tag);
     }
 
     public Pager(String pagerTag, Fragment fragment, int pageViewId)
@@ -34,8 +32,6 @@ public abstract class Pager
         this.tag = pagerTag;
         this.fragment = fragment;
         this.view_Id = pageViewId;
-
-        this.pages = new Pages(pagerTag);
     }
 
     public Fragment getActiveFragment()
@@ -48,27 +44,71 @@ public abstract class Pager
         return this.activePage_Name;
     }
 
-    public Pages getPages()
-    {
-        return this.pages;
-    }
-
     public int getViewId()
     {
         return this.view_Id;
     }
 
-    public boolean onPagerBackPressed()
+    public void remove(String pageName)
     {
-        if (this.activePage_Fragment != null) {
-            if (this.activePage_Fragment instanceof Pager.OnBackPressedListener) {
-                if (((Pager.OnBackPressedListener)this.activePage_Fragment)
-                        .onFragmentBackPressed())
-                    return true;
-            }
+        Fragment fragment = this.getFragmentManager().findFragmentByTag(
+                this.getPageTag(pageName));
+        if (fragment == null)
+            return;
+
+        this.getFragmentManager().beginTransaction()
+                .remove(fragment)
+                .commit();
+    }
+
+    public void set(String pageName, Page page, Bundle args, boolean createNew,
+            boolean saveState)
+    {
+        Fragment pageFragment = null;
+        boolean isNewFragment = false;
+
+        String pageTag = this.getPageTag(pageName);
+
+        if (!createNew)
+            pageFragment = this.getFragmentManager().findFragmentByTag(pageTag);
+
+        if (pageFragment == null) {
+            pageFragment = page.onPageCreate();
+            isNewFragment = true;
         }
 
-        return false;
+        if (args != null)
+            pageFragment.setArguments(args);
+
+
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
+        ft.replace(this.getViewId(), pageFragment, pageTag);
+        if (saveState && isNewFragment)
+            ft.addToBackStack(pageTag);
+        ft.commit();
+
+        this.activePage_Name = pageName;
+        this.activePage_Fragment = pageFragment;
+
+        if (pageFragment instanceof PageSetListener)
+            ((PageSetListener)pageFragment).onPageSet(pageFragment);
+
+        page.onPageSet(pageFragment);
+    }
+
+    public void set(String pageName, Page page, Bundle args, boolean createNew)
+    {
+        this.set(pageName, page, args, createNew, false);
+    }
+
+    public void set(String pageName, Page page, Bundle args)
+    {
+        this.set(pageName, page, args, true);
+    }
+
+    public void set(String pageName, Page page)
+    {
+        this.set(pageName, page, null);
     }
 
 
@@ -82,36 +122,49 @@ public abstract class Pager
         throw new AssertionError("`null` parent activity or fragment.");
     }
 
-    protected String getStateKey(String state_ext)
+
+    private String getPageTag(String pageName)
     {
-        return this.tag + ".States_" + state_ext;
+        return this.tag + "." + pageName;
     }
 
-    protected void setActivePage(String pageName, Fragment fragment)
+    private String getStateKey(String stateExt)
     {
-        if (this.activePage_Name != null && this.activePage_Fragment != null) {
-            PageInfo oldPage = this.pages.get(this.activePage_Name);
-            oldPage.getPage().onPageUnset(this.activePage_Fragment);
+        return this.tag + ".States_" + stateExt;
+    }
+
+
+    /* PagerInstance Overrides */
+//    @Override
+//    public Pager getPager()
+//    {
+//        return this;
+//    }
+
+    @Override
+    public boolean onPagerBackPressed()
+    {
+        if (this.activePage_Fragment != null) {
+            if (this.activePage_Fragment instanceof BackPressedListener) {
+                if (((BackPressedListener)this.activePage_Fragment)
+                        .onPagerBackPressed())
+                    return true;
+            }
         }
 
-        PageInfo pageInfo = this.pages.get(pageName);
+        return false;
+    }
+    /* / PagerInstance Overrides */
 
-        this.activePage_Name = pageName;
-        this.activePage_Fragment = fragment;
 
-        pageInfo.getPage().onPageSet(fragment);
+    public interface BackPressedListener
+    {
+        boolean onPagerBackPressed();
     }
 
-
-//    public abstract boolean onPagerBackPressed();
-    abstract public void loadInstanceState(@Nullable Bundle savedInstanceState);
-    abstract public void onCreateView();
-    abstract public void onSaveInstanceState(Bundle outState);
-
-
-    public interface OnBackPressedListener
+    public interface PageSetListener
     {
-        boolean onFragmentBackPressed();
+        void onPageSet(Fragment pageFragment);
     }
 
 }

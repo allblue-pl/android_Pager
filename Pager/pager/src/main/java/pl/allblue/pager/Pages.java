@@ -10,7 +10,6 @@ public class Pages
 
     private Map<String, PageInfo> pages = new HashMap<>();
 
-    private String firstPage_Name = null;
     private String defaultPage_Name = null;
 
 
@@ -24,8 +23,6 @@ public class Pages
         PageInfo page = new PageInfo(this.pagerTag, page_name, page_instance);
 
         this.pages.put(page_name, page);
-        if (this.firstPage_Name == null)
-            this.firstPage_Name = page_name;
 
         return this;
     }
