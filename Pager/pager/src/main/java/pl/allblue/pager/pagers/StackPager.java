@@ -43,14 +43,24 @@ public class StackPager implements PagerInstance
         return this.pages;
     }
 
-    public void push(String pageName, Bundle bundle)
+    public void push(String pageName, Bundle bundle, boolean createNew, boolean saveState)
     {
         this.pages_Stack.add(pageName);
 
-        String pageIndex = Integer.toString(this.pages_Stack.size() - 1);
+        String pageId = Integer.toString(this.pages_Stack.size() - 1) + "." + pageName;
 
-        this.pager.set(pageIndex, this.pages.get(pageName).getPage(), bundle,
-                false, true);
+        this.pager.set(pageId, this.pages.get(pageName).getPage(), bundle,
+                createNew, saveState);
+    }
+
+    public void push(String pageName, Bundle bundle, boolean createNew)
+    {
+        this.push(pageName, bundle, createNew, true);
+    }
+
+    public void push(String pageName, Bundle bundle)
+    {
+        this.push(pageName, bundle, false);
     }
 
     public void push(String pageName)
@@ -63,17 +73,49 @@ public class StackPager implements PagerInstance
         if (this.pages_Stack.size() < 2)
             throw new AssertionError("Stack empty.");
 
-        String pageIndex = Integer.toString(this.pages_Stack.size() - 2);
         String pageName = this.pages_Stack.get(this.pages_Stack.size() - 2);
-
-        this.pager.set(pageIndex, this.pages.get(pageName).getPage(), null,
+        String pageId = Integer.toString(this.pages_Stack.size() - 2) + "." +
+                pageName;
+        this.pager.set(pageId, this.pages.get(pageName).getPage(), null,
                 false, true);
         this.pager.remove(this.pages_Stack.pop());
+    }
+
+    public void replace(String pageName, Bundle bundle)
+    {
+        if (this.pages_Stack.size() > 0) {
+            String removePageId = this.getPageId(this.pages_Stack.size() - 1);
+            String pageId = this.getPageId_New(this.pages_Stack.size() - 1, pageName);
+            this.pager.replace(removePageId, pageId, this.pages.get(pageName).getPage(),
+                    bundle, true);
+            this.pages_Stack.set(this.pages_Stack.size() - 1, pageName);
+        } else {
+            this.push(pageName, bundle);
+        }
+
+        for (int i = 0; i < this.pages_Stack.size(); i++)
+            Log.d("Test", "Stack (after replace): " + i + ": " + this.pages_Stack.get(i));
+    }
+
+    public void replace(String pageName)
+    {
+        this.replace(pageName, null);
     }
 
     public int size()
     {
         return this.pages_Stack.size();
+    }
+
+
+    private String getPageId(int index)
+    {
+        return Integer.toString(index) + "." + this.pages_Stack.get(index);
+    }
+
+    private String getPageId_New(int index, String pageName)
+    {
+        return Integer.toString(index) + "." + pageName;
     }
 
 

@@ -1,12 +1,10 @@
 package pl.allblue.pager;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 public class Pager implements PagerInstance
 {
@@ -16,7 +14,7 @@ public class Pager implements PagerInstance
     private Fragment fragment = null;
     private int view_Id = -1;
 
-    private String activePage_Name = null;
+    private String activePage_Id = null;
     private Fragment activePage_Fragment = null;
 
 
@@ -39,9 +37,9 @@ public class Pager implements PagerInstance
         return this.activePage_Fragment;
     }
 
-    public String getActivePageName()
+    public String getActivePageId()
     {
-        return this.activePage_Name;
+        return this.activePage_Id;
     }
 
     public int getViewId()
@@ -61,13 +59,49 @@ public class Pager implements PagerInstance
                 .commit();
     }
 
-    public void set(String pageName, Page page, Bundle args, boolean createNew,
+    public void replace(String removePageId, String pageId, Page page, Bundle args, boolean saveState)
+    {
+        Fragment removeFragment = this.getFragmentManager().findFragmentByTag(
+                this.getPageTag(pageId));
+
+        Fragment pageFragment = null;
+        boolean isNewFragment = false;
+
+        String pageTag = this.getPageTag(pageId);
+
+        if (pageFragment == null) {
+            pageFragment = page.onPageCreate();
+            isNewFragment = true;
+        }
+
+        if (args != null)
+            pageFragment.setArguments(args);
+
+
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
+        if (removeFragment != null)
+            ft.remove(removeFragment);
+        ft.replace(this.getViewId(), pageFragment, pageTag);
+        if (saveState && isNewFragment)
+            ft.addToBackStack(pageTag);
+        ft.commit();
+
+        this.activePage_Id = pageId;
+        this.activePage_Fragment = pageFragment;
+
+        if (pageFragment instanceof PageSetListener)
+            ((PageSetListener)pageFragment).onPageSet(pageFragment);
+
+        page.onPageSet(pageFragment);
+    }
+
+    public void set(String pageId, Page page, Bundle args, boolean createNew,
             boolean saveState)
     {
         Fragment pageFragment = null;
         boolean isNewFragment = false;
 
-        String pageTag = this.getPageTag(pageName);
+        String pageTag = this.getPageTag(pageId);
 
         if (!createNew)
             pageFragment = this.getFragmentManager().findFragmentByTag(pageTag);
@@ -87,7 +121,7 @@ public class Pager implements PagerInstance
             ft.addToBackStack(pageTag);
         ft.commit();
 
-        this.activePage_Name = pageName;
+        this.activePage_Id = pageId;
         this.activePage_Fragment = pageFragment;
 
         if (pageFragment instanceof PageSetListener)
@@ -96,19 +130,19 @@ public class Pager implements PagerInstance
         page.onPageSet(pageFragment);
     }
 
-    public void set(String pageName, Page page, Bundle args, boolean createNew)
+    public void set(String pageId, Page page, Bundle args, boolean createNew)
     {
-        this.set(pageName, page, args, createNew, false);
+        this.set(pageId, page, args, createNew, false);
     }
 
-    public void set(String pageName, Page page, Bundle args)
+    public void set(String pageId, Page page, Bundle args)
     {
-        this.set(pageName, page, args, true);
+        this.set(pageId, page, args, true);
     }
 
-    public void set(String pageName, Page page)
+    public void set(String pageId, Page page)
     {
-        this.set(pageName, page, null);
+        this.set(pageId, page, null);
     }
 
 
@@ -123,9 +157,9 @@ public class Pager implements PagerInstance
     }
 
 
-    private String getPageTag(String pageName)
+    private String getPageTag(String pageId)
     {
-        return this.tag + "." + pageName;
+        return this.tag + "." + pageId;
     }
 
     private String getStateKey(String stateExt)
